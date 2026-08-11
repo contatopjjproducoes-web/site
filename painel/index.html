@@ -21,19 +21,21 @@
   </form>
 </section>
 <script src="../config.js"></script>
+<script src="common.js"></script>
 <script>
-if(sessionStorage.getItem('pjj_panel_ok')==='1'){
-  location.replace('configuracoes.html');
-}
-document.getElementById('loginForm').addEventListener('submit',e=>{
+if(pjjToken()) location.replace('configuracoes.html');
+document.getElementById('loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  const pass=document.getElementById('passwordInput').value;
-  const expected=window.PJJ_CONFIG?.panel?.password || '';
-  if(pass===expected){
-    sessionStorage.setItem('pjj_panel_ok','1');
+  const error=document.getElementById('loginError');
+  const button=e.currentTarget.querySelector('button');
+  error.textContent=''; button.disabled=true; button.textContent='Entrando…';
+  try{
+    const data=await pjjApi('/login',{method:'POST',body:JSON.stringify({password:document.getElementById('passwordInput').value})});
+    sessionStorage.setItem('pjj_api_token',data.token);
     location.replace('configuracoes.html');
-  }else{
-    document.getElementById('loginError').textContent='Senha incorreta.';
+  }catch(err){
+    error.textContent=err.message||'Não foi possível entrar.';
+    button.disabled=false;button.textContent='Entrar';
   }
 });
 </script>

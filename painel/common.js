@@ -1,4 +1,5 @@
 const CFG = window.PJJ_CONFIG || {};
+const PJJ_API = "https://pjj-site-admin.contato-pjjproducoes.workers.dev";
 const STORAGE_KEY = 'pjj-admin-state-v3';
 
 function pjjClone(v){ return JSON.parse(JSON.stringify(v)); }
@@ -35,6 +36,35 @@ function requireAuth(){
 function setupLogout(){
   document.getElementById('logoutBtn')?.addEventListener('click',()=>{
     sessionStorage.removeItem('pjj_panel_ok');
+    location.replace('index.html');
+  });
+}
+
+function pjjToken(){ return sessionStorage.getItem('pjj_api_token')||''; }
+async function pjjApi(path, options={}){
+  const headers={...(options.headers||{})};
+  if(options.body && !headers['Content-Type']) headers['Content-Type']='application/json';
+  const token=pjjToken(); if(token) headers.Authorization='Bearer '+token;
+  const r=await fetch(PJJ_API+path,{...options,headers});
+  const data=await r.json().catch(()=>({}));
+  if(r.status===401 && path!='/login'){
+    sessionStorage.removeItem('pjj_api_token');
+    location.replace('index.html');
+    throw new Error('Sessão expirada');
+  }
+  if(!r.ok) throw new Error(data.detail||data.error||'Erro na comunicação');
+  return data;
+}
+function requireAuth(){
+  if(!pjjToken()){
+    location.replace('index.html');
+    return false;
+  }
+  return true;
+}
+function setupLogout(){
+  document.getElementById('logoutBtn')?.addEventListener('click',()=>{
+    sessionStorage.removeItem('pjj_api_token');
     location.replace('index.html');
   });
 }

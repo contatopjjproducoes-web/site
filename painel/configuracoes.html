@@ -32,7 +32,7 @@
   <label class="field full"><span>Mensagem automática do WhatsApp</span><textarea id="whatsappMessage" rows="3"></textarea></label>
   <label class="field full"><span>Texto principal do site</span><textarea id="heroText" rows="3"></textarea></label>
   <label class="field full"><span>Frase da seção Sobre</span><textarea id="aboutLead" rows="2"></textarea></label>
-  <label class="field"><span>Senha do painel</span><input id="panelPassword"></label>
+  
 </div>
 
 <div class="hero-image-editor">
@@ -68,8 +68,7 @@ if(requireAuth()){
     $('#email').value=c.email||''; $('#location').value=c.location||'';
     $('#whatsappMessage').value=c.whatsappMessage||'';
     $('#heroText').value=ct.heroText||''; $('#aboutLead').value=ct.aboutLead||'';
-    $('#panelPassword').value=p.password||'';
-    renderHero();
+        renderHero();
   }
   function renderHero(){
     const box=$('#heroImagePreview'), src=state.content._heroPreview||state.content.heroImage||'';
@@ -105,8 +104,7 @@ if(requireAuth()){
       location:$('#location').value.trim(),
       whatsappMessage:$('#whatsappMessage').value.trim()
     });
-    state.config.panel.password=$('#panelPassword').value;
-    state.content.heroText=$('#heroText').value.trim();
+        state.content.heroText=$('#heroText').value.trim();
     state.content.aboutLead=$('#aboutLead').value.trim();
     pjjSaveState(state);pjjToast('Alterações salvas.');
   };
