@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909"><title>Publicar | Painel PJJ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head><body>
+
+<header class="top">
+  <a href="../" class="brand"><strong>PJJ</strong><span>PAINEL DO SITE</span></a>
+  <nav class="nav">
+    <a href="configuracoes.html" class="">Configurações</a>
+    <a href="portfolio.html" class="">Portfólio</a>
+    <a href="metricas.html" class="">Métricas</a>
+    <a href="publicar.html" class="active">Publicar</a>
+  </nav>
+  <button class="btn ghost small" id="logoutBtn">Sair</button>
+</header>
+<main>
+<section class="page-head">
+  <p class="kicker">PUBLICAR</p><h1>Gerar atualização</h1>
+  <p>Baixe um pacote com os arquivos alterados pelo painel.</p>
+</section>
+<div class="publish-card">
+  <p class="kicker">PACOTE DO SITE</p>
+  <h2>Baixar alterações</h2>
+  <p>O ZIP inclui <code>config.js</code>, <code>content.js</code> e as imagens novas escolhidas no painel.</p>
+  <button class="btn primary big" id="exportBundle">Baixar pacote de atualização</button>
+  <div class="steps">
+    <span>1</span><p>Baixe o ZIP.</p>
+    <span>2</span><p>Extraia no computador.</p>
+    <span>3</span><p>Substitua os arquivos correspondentes no GitHub.</p>
+    <span>4</span><p>Faça o commit e aguarde o GitHub Pages atualizar.</p>
+  </div>
+</div>
+</main>
+<script src="../config.js"></script>
+<script src="../content.js"></script>
+<script src="common.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+if(requireAuth()){
+setupLogout();
+const state=pjjGetState();
+function clean(){
+ const s=pjjClone(state);
+ delete s.content._heroPreview;
+ s.content.portfolio=(s.content.portfolio||[]).map(p=>{const q={...p};delete q._preview;delete q._data;return q});
+ return s;
+}
+function dataUrlToBlob(dataUrl){
+ const [head,data]=dataUrl.split(','),mime=(head.match(/:(.*?);/)||[])[1]||'image/jpeg';
+ const bin=atob(data),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+ return new Blob([arr],{type:mime});
+}
+document.getElementById('exportBundle').onclick=async()=>{
+ const s=clean(),zip=new JSZip();
+ zip.file('config.js','window.PJJ_CONFIG = '+JSON.stringify(s.config,null,2)+';\n');
+ zip.file('content.js','window.PJJ_CONTENT = '+JSON.stringify(s.content,null,2)+';\n');
+ if(state.content._heroData && s.content.heroImage)zip.file(s.content.heroImage,dataUrlToBlob(state.content._heroData));
+ for(const p of state.content.portfolio||[]){
+   if(p._data && p.image)zip.file(p.image,dataUrlToBlob(p._data));
+ }
+ const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='pjj-atualizacao-site.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),1200);
+ pjjToast('Pacote gerado.');
+};
+}
+</script>
+</body></html>
