@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>Painel | PJJ Produções</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <section class="login-screen" id="loginScreen">
+    <form class="login-card" id="loginForm">
+      <div class="brand-lock">
+        <strong>PJJ</strong>
+        <span>PAINEL</span>
+      </div>
+      <p class="kicker">ÁREA DE EDIÇÃO</p>
+      <h1>Acesso ao painel</h1>
+      <p class="muted">Digite a senha definida em <code>config.js</code>.</p>
+      <label class="field">
+        <span>Senha</span>
+        <input id="passwordInput" type="password" autocomplete="current-password" required>
+      </label>
+      <button class="btn primary wide" type="submit">Entrar</button>
+      <p class="login-error" id="loginError"></p>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <header class="top">
+      <a href="../" class="brand"><strong>PJJ</strong><span>PAINEL DO SITE</span></a>
+      <nav class="tabs">
+        <button data-tab="overview" class="active">Visão geral</button>
+        <button data-tab="content">Conteúdo</button>
+        <button data-tab="portfolio">Portfólio</button>
+        <button data-tab="analytics">Métricas</button>
+        <button data-tab="publish">Publicar</button>
+      </nav>
+      <button class="btn ghost small" id="logoutBtn">Sair</button>
+    </header>
+
+    <main>
+      <section class="tab active" id="tab-overview">
+        <div class="hero">
+          <p class="kicker">PJJ PRODUÇÕES</p>
+          <h1>Painel do site</h1>
+          <p>Edite dados, portfólio e acompanhe as interações do site.</p>
+        </div>
+        <div class="stat-grid">
+          <article><small>PROJETOS</small><strong id="statProjects">0</strong><span>No portfólio</span></article>
+          <article><small>ANALYTICS</small><strong id="statAnalytics">OFF</strong><span id="statAnalyticsSub">Não configurado</span></article>
+          <article><small>WHATSAPP</small><strong id="statWhats">—</strong><span>Contato configurado</span></article>
+        </div>
+        <div class="quick-card">
+          <div><p class="kicker">ATALHO</p><h2>Atualização rápida</h2><p>Dados como WhatsApp, Instagram, e-mail e senha ficam em <code>config.js</code>.</p></div>
+          <button class="btn primary" data-go="content">Editar agora</button>
+        </div>
+      </section>
+
+      <section class="tab" id="tab-content">
+        <div class="section-head"><div><p class="kicker">CONFIGURAÇÕES</p><h2>Dados frequentes</h2></div></div>
+        <div class="form-grid">
+          <label class="field"><span>Instagram</span><input id="instagram" type="url"></label>
+          <label class="field"><span>WhatsApp</span><input id="whatsapp" inputmode="numeric"></label>
+          <label class="field"><span>E-mail</span><input id="email" type="email"></label>
+          <label class="field"><span>Localização</span><input id="location"></label>
+          <label class="field full"><span>Mensagem automática do WhatsApp</span><textarea id="whatsappMessage" rows="3"></textarea></label>
+          <label class="field full"><span>Texto principal do site</span><textarea id="heroText" rows="3"></textarea></label>
+          <label class="field full"><span>Frase da seção “Sobre”</span><textarea id="aboutLead" rows="2"></textarea></label>
+          <label class="field"><span>Nova senha do painel</span><input id="panelPassword"></label>
+        </div>
+        
+        <div class="hero-image-editor">
+          <div>
+            <p class="kicker">IMAGEM DO TOPO</p>
+            <h3>Imagem principal</h3>
+            <p>Essa é a imagem grande exibida ao lado do título na primeira tela do site.</p>
+            <div class="image-controls">
+              <label class="btn primary">Escolher imagem
+                <input id="heroImageInput" class="file-input" type="file" accept="image/*">
+              </label>
+              <button class="btn ghost" id="removeHeroImage" type="button">Remover</button>
+            </div>
+          </div>
+          <div class="hero-image-preview" id="heroImagePreview">
+            <span>Sem imagem</span>
+          </div>
+        </div>
+
+        <div class="save-row">
+          <span>Essas mudanças entram no pacote quando você exportar.</span>
+          <button class="btn primary" id="saveContent">Salvar no navegador</button>
+        </div>
+      </section>
+
+      <section class="tab" id="tab-portfolio">
+        <div class="section-head portfolio-head">
+          <div><p class="kicker">PORTFÓLIO</p><h2>Projetos</h2></div>
+          <button class="btn primary" id="addProject">+ Adicionar projeto</button>
+        </div>
+        <div id="projects" class="projects"></div>
+      </section>
+
+      <section class="tab" id="tab-analytics">
+        <div class="section-head"><div><p class="kicker">MÉTRICAS</p><h2>Visitas e interações</h2></div><button class="btn ghost" id="refreshStats">Atualizar</button></div>
+        <div id="analyticsOff" class="empty-state">
+          <h3>Analytics ainda não está conectado.</h3>
+          <p>Preencha Supabase URL e anon key em <code>config.js</code> e ative <code>enabled: true</code>.</p>
+        </div>
+        <div id="analyticsOn" hidden>
+          <div class="stat-grid analytics-grid">
+            <article><small>VISITAS</small><strong id="viewsCount">0</strong><span>Page views</span></article>
+            <article><small>SESSÕES</small><strong id="sessionsCount">0</strong><span>Visitantes aproximados</span></article>
+            <article><small>WHATSAPP</small><strong id="whatsClicks">0</strong><span>Cliques</span></article>
+            <article><small>INSTAGRAM</small><strong id="instaClicks">0</strong><span>Cliques</span></article>
+          </div>
+          <div class="analytics-panels">
+            <article class="table-card">
+              <h3>Últimos 7 dias</h3>
+              <div id="daysTable"></div>
+            </article>
+            <article class="table-card">
+              <h3>Interações</h3>
+              <div id="eventsTable"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab" id="tab-publish">
+        <div class="publish-card">
+          <p class="kicker">PUBLICAR</p>
+          <h2>Gerar pacote de atualização</h2>
+          <p>
+            O botão abaixo cria um ZIP contendo <code>config.js</code>,
+            <code>content.js</code> e todas as novas imagens dentro de
+            <code>assets/portfolio/</code>.
+          </p>
+          <button class="btn primary big" id="exportBundle">Baixar pacote de atualização</button>
+          <div class="steps">
+            <span>1</span><p>Baixe o ZIP.</p>
+            <span>2</span><p>Extraia no seu computador.</p>
+            <span>3</span><p>Substitua os arquivos/pastas correspondentes no GitHub.</p>
+            <span>4</span><p>Faça o commit. O GitHub Pages atualiza automaticamente.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="../config.js"></script>
+  <script src="../content.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
